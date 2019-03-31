@@ -26,5 +26,8 @@ repositories {
 dependencies {
     compile('org.springframework.boot:spring-boot-starter-data-mongodb')
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    compile('org.springframework.boot:spring-boot-starter-actuator')
     compile("me.ramswaroop.jbot:jbot:3.0.2")
+    compile('io.micrometer:micrometer-spring-legacy:latest.release')
+    compile('io.micrometer:micrometer-registry-prometheus:latest.release')
 }

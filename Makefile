@@ -1,6 +1,9 @@
 base:
 	docker build --tag=alpine-java:base --rm=true -f Dockerfile.base .
 
+run:
+	gradle bootRun
+
 build:
 	gradle bootRepackage
 
@@ -12,4 +15,10 @@ all: base build package
 
 
 deploy:
-	docker stack deploy mongo -c stack.yml
+	docker stack deploy slackbot -c stack.yml
+
+ls:
+	docker stack ps slackbot
+
+delete:
+	docker stack rm slackbot

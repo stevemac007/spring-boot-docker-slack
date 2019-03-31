@@ -9,6 +9,10 @@ import com.djamware.slackbot.models.BadWord;
 import com.djamware.slackbot.repositories.BadwordRepository;
 import java.util.Arrays;
 import java.util.regex.Matcher;
+
+import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Metrics;
 import me.ramswaroop.jbot.core.slack.Bot;
 import me.ramswaroop.jbot.core.slack.Controller;
 import me.ramswaroop.jbot.core.slack.EventType;
@@ -33,6 +37,9 @@ public class SlackBot extends Bot {
 
     private static final Logger logger = LoggerFactory.getLogger(SlackBot.class);
 
+    private Counter dmCounter = Metrics.counter("slack_dm", "region", "test");
+    private Counter messageCounter = Metrics.counter("slack_message", "region", "test");
+
     @Value("${slackBotToken}")
     private String slackToken;
 
@@ -45,22 +52,26 @@ public class SlackBot extends Bot {
     public Bot getSlackBot() {
         return this;
     }
-    
+
+    @Timed(value="blart")
     @Controller(events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveDM(WebSocketSession session, Event event) {
+        logger.info("Recieved " + event.getText());
+        dmCounter.increment();
         reply(session, event, new Message("Hi, I am " + slackService.getCurrentUser().getName()));
     }
     
     @Controller(events = EventType.MESSAGE, pattern = "fuck|shit|bitch")
     public void onReceiveMessage(WebSocketSession session, Event event, Matcher matcher) {
+        messageCounter.increment();
         if(!matcher.group(0).isEmpty()) {
-            BadWord badword = new BadWord(event.getUserId(),matcher.group(0));
-            badwordRepository.save(badword);
-            Integer countBadWords = badwordRepository.countByUser(event.getUserId());
+//            BadWord badword = new BadWord(event.getUserId(), matcher.group(0));
+//            badwordRepository.save(badword);
+            Integer countBadWords = 3; //badwordRepository.countByUser(event.getUserId());
             if(countBadWords >= 5) {
                 reply(session, event, new Message("Enough! You have too many say bad words. \nThe admin will kick you away from this channel."));
             } else {
-                reply(session, event, new Message("Becareful you have say bad words "+countBadWords+" times"));
+                reply(session, event, new Message("Becareful you have said bad words "+countBadWords+" times"));
             }
         }
     }
