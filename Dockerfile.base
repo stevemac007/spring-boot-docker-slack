@@ -1,0 +1,5 @@
+FROM alpine:edge
+MAINTAINER steve@whitesquaresoft.com
+RUN apk add --no-cache openjdk8
+RUN apk add --no-cache nss
+# COPY files/UnlimitedJCEPolicyJDK8/* /usr/lib/jvm/java-1.8-openjdk/jre/lib/security/
